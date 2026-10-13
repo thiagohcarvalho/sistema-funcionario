@@ -2,6 +2,10 @@ import java.math.BigDecimal;
 
 public class Estagiario extends Funcionario {
 
+    public Estagiario(String nome, String cpf, BigDecimal salario) {
+        super(nome, cpf, salario);
+    }
+
     @Override
     public void setSalario(BigDecimal salario) {
         if (salario.compareTo(BigDecimal.valueOf(1500)) < 0) {

@@ -7,6 +7,12 @@ public class Funcionario {
 
     private BigDecimal salario;
 
+    public Funcionario(String nome, String cpf, BigDecimal salario) {
+        this.nome = nome;
+        this.cpf = cpf;
+        setSalario(salario);
+    }
+
     public void setNome(String nome) {
         this.nome = nome;
     }
