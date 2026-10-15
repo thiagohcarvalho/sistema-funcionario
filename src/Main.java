@@ -65,6 +65,9 @@ public class Main {
                 case "2": {
                     listarFuncionarios();
                 }
+                case "3": {
+                    calcularFolhaSalarial();
+                }
                 break;
                 case "7": {
                     cont = false;
@@ -114,5 +117,17 @@ public class Main {
             IO.println("Salário do Funcionário: " + funcionario.getSalario());
         }
         IO.println("========================");
+    }
+
+    private static void calcularFolhaSalarial() {
+        if (funcionariosList.isEmpty()) {
+            IO.println("Sem funcionários cadastrados!");
+            return;
+        }
+        BigDecimal somaSalario = BigDecimal.ZERO;
+        for (Funcionario funcionario : funcionariosList) {
+            somaSalario = somaSalario.add(funcionario.getSalario());
+        }
+        IO.println("A folha salarial da empresa é: " + somaSalario);
     }
 }
