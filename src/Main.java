@@ -1,5 +1,6 @@
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -69,6 +70,31 @@ public class Main {
                     calcularFolhaSalarial();
                 }
                 break;
+                case "4": {
+                    IO.println("Digite o Nome ou CPF do funcionário:");
+                    String textoBusca = scanner.nextLine();
+                    if (isTextCpf(textoBusca)) {
+                        buscaFuncionarioCpf(textoBusca);
+                    } else {
+                        buscaFuncionarioNome(textoBusca);
+                    }
+
+                }
+                break;
+                case "5": {
+                    IO.println("Digite o CPF do funcionário:");
+                    String cpfRemove = scanner.nextLine();
+                    removerFuncionario(cpfRemove);
+                }
+                break;
+                case "6": {
+                    IO.println("Digite o CPF do funcionário:");
+                    String cpfAlterar = scanner.nextLine();
+                    IO.println("Digite o salário novo:");
+                    BigDecimal salarioFuncionario = new BigDecimal(scanner.nextLine());
+                    alterarSalarioFuncionario(cpfAlterar, salarioFuncionario);
+                }
+                break;
                 case "7": {
                     cont = false;
                 }
@@ -111,10 +137,7 @@ public class Main {
         }
         for (Funcionario funcionario : funcionariosList) {
             IO.println("========================");
-            IO.println("Cargo: " + funcionario.getClass().getSimpleName());
-            IO.println("Nome do Funcionário: " + funcionario.getNome());
-            IO.println("CPF do Funcionário: " + funcionario.getCpf());
-            IO.println("Salário do Funcionário: " + funcionario.getSalario());
+            printFuncionario(funcionario);
         }
         IO.println("========================");
     }
@@ -129,5 +152,68 @@ public class Main {
             somaSalario = somaSalario.add(funcionario.getSalario());
         }
         IO.println("A folha salarial da empresa é: " + somaSalario);
+    }
+
+    private static void buscaFuncionarioCpf(String textoBusca) {
+        for (Funcionario funcionario : funcionariosList) {
+            if (funcionario.getCpf().equals(textoBusca)) {
+                printFuncionario(funcionario);
+                return;
+            }
+        }
+        IO.println("Funcionário não encontrado, tente novamente.");
+    }
+
+    private static void buscaFuncionarioNome(String textoBusca) {
+        boolean encontrado = false;
+
+        for (Funcionario funcionario : funcionariosList) {
+            if (funcionario.getNome().equalsIgnoreCase(textoBusca)) {
+                printFuncionario(funcionario);
+                encontrado = true;
+            }
+        }
+        if (!encontrado) IO.println("Funcionário não encontrado, tente novamente.");
+    }
+
+    private static void removerFuncionario(String cpf) {
+        boolean removido = funcionariosList.removeIf(
+                funcionario -> funcionario.getCpf().equals(cpf)
+        );
+
+        if (removido) {
+            IO.println("Funcionário removido com sucesso.");
+        } else {
+            IO.println("Funcionário não encontrado, tente novamente.");
+        }
+    }
+
+    private static void alterarSalarioFuncionario(String cpf, BigDecimal salario) {
+        Optional<Funcionario> resultado = findFuncionarioByCpf(cpf);
+
+        resultado.ifPresentOrElse(
+                funcionario -> funcionario.setSalario(salario),
+                () -> IO.println("Funcionário não encontrado.")
+        );
+    }
+
+    private static void printFuncionario(Funcionario funcionario) {
+        IO.println("Cargo: " + funcionario.getClass().getSimpleName());
+        IO.println("Nome do Funcionário: " + funcionario.getNome());
+        IO.println("CPF do Funcionário: " + funcionario.getCpf());
+        IO.println("Salário do Funcionário: " + funcionario.getSalario());
+    }
+
+    private static boolean isTextCpf(String texto) {
+        return texto.matches("\\d{11}");
+    }
+
+    private static Optional<Funcionario> findFuncionarioByCpf(String cpf) {
+        for (Funcionario funcionario : funcionariosList) {
+            if (funcionario.getCpf().equals(cpf)) {
+                return Optional.of(funcionario);
+            }
+        }
+        return Optional.empty();
     }
 }
