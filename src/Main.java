@@ -97,7 +97,6 @@ public class Main {
                 break;
                 default: {
                     IO.println("Opção inválida! Tente novamente.");
-                    continue;
                 }
             }
         }
@@ -159,7 +158,7 @@ public class Main {
         Optional<Funcionario> resultado = findFuncionarioByCpf(cpf);
 
         resultado.ifPresentOrElse(
-                funcionario -> printFuncionario(funcionario),
+                Main::printFuncionario,
                 () -> IO.println("Nenhum funcionário encontrado. Tente novamente.")
         );
     }
@@ -277,7 +276,6 @@ public class Main {
                 }
                 default -> {
                     IO.println("Opção inválida! Tente novamente.");
-                    continue;
                 }
             }
         }
