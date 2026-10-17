@@ -8,17 +8,25 @@ public class Funcionario {
     private BigDecimal salario;
 
     public Funcionario(String nome, String cpf, BigDecimal salario) {
-        this.nome = nome;
-        this.cpf = cpf;
+        setNome(nome);
+        setCpf(cpf);
         setSalario(salario);
     }
 
     public void setNome(String nome) {
-        this.nome = nome;
+        if (nome.matches("^[\\p{L} ]+$")) {
+            this.nome = nome;
+        } else {
+            throw new IllegalArgumentException("Cadastro inválido.");
+        }
     }
 
     public void setCpf(String cpf) {
-        this.cpf = cpf;
+        if (cpf.matches("\\d{11}")) {
+            this.cpf = cpf;
+        } else {
+            throw new IllegalArgumentException("Cadastro inválido. Tente novamente.");
+        }
     }
 
     public void setSalario(BigDecimal salario) {

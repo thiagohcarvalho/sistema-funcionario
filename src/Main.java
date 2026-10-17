@@ -11,6 +11,7 @@ public class Main {
         boolean cont = true;
 
         while (cont) {
+            IO.println("=====================================");
             IO.println("Bem vindo ao sistema de funcionários!");
             IO.println("Abaixo estão suas opções, escolha uma delas:");
             IO.println("1 - Cadastrar Funcionário");
@@ -19,7 +20,8 @@ public class Main {
             IO.println("4 - Buscar funcionário");
             IO.println("5 - Remover funcionário");
             IO.println("6 - Alterar salário");
-            IO.println("7 - Sair");
+            IO.println("7 - Alterar cargo");
+            IO.println("8 - Sair");
             String opcao = scanner.nextLine();
 
             switch (opcao) {
@@ -30,42 +32,20 @@ public class Main {
                     String cpfFuncionario = scanner.nextLine();
                     IO.println("Digite o salário do funcionário a ser cadastrado:");
                     BigDecimal salarioFuncionario = new BigDecimal(scanner.nextLine());
-                    String opcaoFuncionario;
 
-                    while (true) {
-                        IO.println("Digite o tipo de funcionário a ser cadastrado:");
-                        IO.println("1 - Desenvolvedor");
-                        IO.println("2 - Gerente");
-                        IO.println("3 - Estagiário");
 
-                        opcaoFuncionario = scanner.nextLine();
-
-                        switch (opcaoFuncionario) {
-                            case "1" -> {
-                                cadastrarDesenvolvedor(nomeFuncionario, cpfFuncionario, salarioFuncionario);
-                                break;
-                            }
-                            case "2" -> {
-                                cadastrarGerente(nomeFuncionario, cpfFuncionario, salarioFuncionario);
-                                break;
-                            }
-                            case "3" -> {
-                                cadastrarEstagiario(nomeFuncionario, cpfFuncionario, salarioFuncionario);
-                                break;
-                            }
-                            default -> {
-                                IO.println("Opção inválida! Tente novamente.");
-                                continue;
-                            }
-                        }
-
-                        break;
+                    String opcaoFuncionario = cargoOptions();
+                    switch (opcaoFuncionario) {
+                        case "Desenvolvedor" -> cadastrarDesenvolvedor(nomeFuncionario, cpfFuncionario, salarioFuncionario);
+                        case "Gerente" -> cadastrarGerente(nomeFuncionario, cpfFuncionario, salarioFuncionario);
+                        case "Estagiario" -> cadastrarEstagiario(nomeFuncionario, cpfFuncionario, salarioFuncionario);
                     }
                 }
                 break;
                 case "2": {
                     listarFuncionarios();
                 }
+                break;
                 case "3": {
                     calcularFolhaSalarial();
                 }
@@ -96,9 +76,29 @@ public class Main {
                 }
                 break;
                 case "7": {
+                    IO.println("Digite o CPF do funcionário:");
+                    String cpfAlterar = scanner.nextLine();
+                    IO.println("Digite o novo salário do funcionário");
+                    BigDecimal novoSalario = new BigDecimal(scanner.nextLine());
+
+                    String opcaoFuncionario = cargoOptions();
+
+                    Optional<Funcionario> resultado = findFuncionarioByCpf(cpfAlterar);
+
+                    resultado.ifPresentOrElse(
+                            funcionario -> alterarCargoFuncionario(funcionario, opcaoFuncionario, novoSalario),
+                            () -> IO.println("Funcionário não encontrado. Tente novamente.")
+                    );
+                }
+                break;
+                case "8": {
                     cont = false;
                 }
                 break;
+                default: {
+                    IO.println("Opção inválida! Tente novamente.");
+                    continue;
+                }
             }
         }
     }
@@ -137,6 +137,7 @@ public class Main {
         }
         for (Funcionario funcionario : funcionariosList) {
             IO.println("========================");
+            IO.println("Seguem abaixo os funcionários:");
             printFuncionario(funcionario);
         }
         IO.println("========================");
@@ -154,26 +155,26 @@ public class Main {
         IO.println("A folha salarial da empresa é: " + somaSalario);
     }
 
-    private static void buscaFuncionarioCpf(String textoBusca) {
-        for (Funcionario funcionario : funcionariosList) {
-            if (funcionario.getCpf().equals(textoBusca)) {
-                printFuncionario(funcionario);
-                return;
-            }
-        }
-        IO.println("Funcionário não encontrado, tente novamente.");
+    private static void buscaFuncionarioCpf(String cpf) {
+        Optional<Funcionario> resultado = findFuncionarioByCpf(cpf);
+
+        resultado.ifPresentOrElse(
+                funcionario -> printFuncionario(funcionario),
+                () -> IO.println("Nenhum funcionário encontrado. Tente novamente.")
+        );
     }
 
-    private static void buscaFuncionarioNome(String textoBusca) {
+    private static void buscaFuncionarioNome(String nome) {
         boolean encontrado = false;
 
+        IO.println("Funcionários encontrados:");
         for (Funcionario funcionario : funcionariosList) {
-            if (funcionario.getNome().equalsIgnoreCase(textoBusca)) {
+            if (funcionario.getNome().equalsIgnoreCase(nome)) {
                 printFuncionario(funcionario);
                 encontrado = true;
             }
         }
-        if (!encontrado) IO.println("Funcionário não encontrado, tente novamente.");
+        if (!encontrado) IO.println("Nenhum funcionário encontrado, tente novamente.");
     }
 
     private static void removerFuncionario(String cpf) {
@@ -197,6 +198,44 @@ public class Main {
         );
     }
 
+    private static void alterarCargoFuncionario(Funcionario funcionario, String opcaoCargo, BigDecimal novoSalario) {
+        String cargoAtual = funcionario.getClass().getSimpleName();
+        if (cargoAtual.equals(opcaoCargo)) {
+            IO.println("Houve um erro ao alterar o cargo. Tente novamente.");
+            return;
+        }
+
+        Funcionario funcionadoAlterado = null;
+        switch (opcaoCargo) {
+            case "Desenvolvedor": {
+                try {
+                    funcionadoAlterado = new Desenvolvedor(funcionario.getNome(), funcionario.getCpf(), novoSalario);
+                } catch (IllegalArgumentException e) {
+                    IO.println(e.getMessage());
+                }
+            }
+            break;
+            case "Gerente": {
+                try {
+                    funcionadoAlterado = new Gerente(funcionario.getNome(), funcionario.getCpf(), novoSalario);
+                } catch (IllegalArgumentException e) {
+                    IO.println(e.getMessage());
+                }
+            }
+            break;
+            case "Estagiario": {
+                try {
+                    funcionadoAlterado = new Estagiario(funcionario.getNome(), funcionario.getCpf(), novoSalario);
+                } catch (IllegalArgumentException e) {
+                    IO.println(e.getMessage());
+                }
+            }
+            break;
+        }
+        int indice = funcionariosList.indexOf(funcionario);
+        funcionariosList.set(indice, funcionadoAlterado);
+    }
+
     private static void printFuncionario(Funcionario funcionario) {
         IO.println("Cargo: " + funcionario.getClass().getSimpleName());
         IO.println("Nome do Funcionário: " + funcionario.getNome());
@@ -215,5 +254,32 @@ public class Main {
             }
         }
         return Optional.empty();
+    }
+
+    private static String cargoOptions() {
+        String opcaoFuncionario;
+        while (true) {
+            IO.println("Digite o cargo do funcionário:");
+            IO.println("1 - Desenvolvedor");
+            IO.println("2 - Gerente");
+            IO.println("3 - Estagiário");
+            opcaoFuncionario = scanner.nextLine();
+
+            switch (opcaoFuncionario) {
+                case "1" -> {
+                    return "Desenvolvedor";
+                }
+                case "2" -> {
+                    return "Gerente";
+                }
+                case "3" -> {
+                    return "Estagiario";
+                }
+                default -> {
+                    IO.println("Opção inválida! Tente novamente.");
+                    continue;
+                }
+            }
+        }
     }
 }
